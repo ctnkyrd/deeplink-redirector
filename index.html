@@ -4,52 +4,77 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Redirect</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+    </style>
     <script type="text/javascript">
-        function checkAndRedirect() {
-            // Check if running on iOS
-            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        // Store the time when we started
+        var startTime = new Date().getTime();
+        
+        function handleRedirect() {
+            // Create a hidden link element
+            var link = document.createElement('a');
+            link.id = 'appLink';
+            link.href = 'fb://profile/4';
+            link.style.display = 'none';
+            document.body.appendChild(link);
             
-            if (isIOS) {
-                // For iOS, we'll use a hidden iframe to test if Facebook is installed
-                var iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                
-                // Set up the fallback timer first
-                var fallbackTimer = setTimeout(function() {
-                    // If we're still here after the timeout, go to SPO page
-                    window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-                }, 2000);
-                
-                // Handle messages from the iframe
-                window.addEventListener('blur', function() {
-                    // App is likely opening, clear fallback
+            // Set up the fallback timer first before doing anything else
+            var fallbackTimer = setTimeout(function() {
+                window.location.replace("https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001");
+            }, 1500);
+            
+            // Test if we left the page
+            window.addEventListener('blur', function() {
+                clearTimeout(fallbackTimer);
+            });
+            
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
                     clearTimeout(fallbackTimer);
-                });
-                
-                // Now try to open Facebook via the iframe
-                iframe.onload = function() {
-                    // This generally won't trigger for app schemes
-                };
-                
-                // Use the iframe to try opening the app
-                document.body.appendChild(iframe);
-                iframe.src = "fb://profile/4";
-            } else {
-                // For non-iOS devices, just go to the SPO page
-                window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-            }
+                }
+            });
+            
+            // Add a pagehide listener as well
+            window.addEventListener('pagehide', function() {
+                clearTimeout(fallbackTimer);
+            });
+            
+            // Simulate a click on the link
+            setTimeout(function() {
+                try {
+                    var event = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    link.dispatchEvent(event);
+                } catch(e) {
+                    // Fallback for older browsers
+                    link.click();
+                }
+            }, 100);
+            
+            // Add a backup approach - sometimes the first method doesn't trigger the listeners
+            setTimeout(function() {
+                var currentTime = new Date().getTime();
+                // If we're still here after more than 1200ms, assume app didn't open
+                if (currentTime - startTime > 1200) {
+                    window.location.replace("https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001");
+                }
+            }, 1200);
         }
         
-        // When page loads, start the process
+        // Start the process after a brief delay
         window.onload = function() {
-            // Add a slight delay before trying to open the app to ensure the page is fully loaded
-            setTimeout(checkAndRedirect, 100);
+            setTimeout(handleRedirect, 50);
         };
     </script>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 100px;">
-        <p>Redirecting you...</p>
-    </div>
 </body>
 </html>
