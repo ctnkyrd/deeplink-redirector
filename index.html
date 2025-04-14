@@ -4,54 +4,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Redirect</title>
-    <script type="text/javascript">
-        function openApp() {
-            // Only proceed with app detection for iOS devices
-            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                // Track if we've navigated away
-                var navigated = false;
-                
-                // Set timeout for fallback
-                var fallbackTimer = setTimeout(function() {
-                    if (!navigated) {
-                        // Facebook likely not installed, go to SPO page
-                        window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-                    }
-                }, 1500); // Slightly longer timeout for better reliability
-                
-                // Before we try to open Facebook, set up the visibility listener
-                document.addEventListener("visibilitychange", function() {
-                    if (document.hidden) {
-                        // App opened successfully, clear fallback
-                        navigated = true;
-                        clearTimeout(fallbackTimer);
-                    }
-                });
-                
-                // Also listen for blur event as backup detection method
-                window.addEventListener("blur", function() {
-                    // App focus likely changed, assume success
-                    navigated = true;
-                    clearTimeout(fallbackTimer);
-                });
-                
-                // Now try to open Facebook
-                window.location.href = "fb://profile/4";
-            } else {
-                // For non-iOS devices, just go to the SPO page
-                window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-            }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
         }
-        
-        // Run when page loads
-        window.onload = function() {
-            openApp();
-        };
-    </script>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4267B2;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 100px;">
-        <p>Redirecting you...</p>
-    </div>
+    <h2>Choose your destination</h2>
+    <p>Tap the button below to continue</p>
+    
+    <a href="fb://profile/4" class="button" id="openButton">Continue</a>
+    
+    <script type="text/javascript">
+        // Auto-redirect to SPO page after a delay
+        setTimeout(function() {
+            window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+        }, 3000);
+        
+        // If user taps the button, prevent the auto-redirect
+        document.getElementById('openButton').addEventListener('click', function() {
+            // Clear any possible redirects
+            setTimeout(function() {
+                // If we're still on the page after attempting to open Facebook
+                if (document.visibilityState !== 'hidden') {
+                    window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
