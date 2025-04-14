@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Redirect</title>
+    <script type="text/javascript">
+        function openApp() {
+            // Only proceed with app detection for iOS devices
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                // Track if we've navigated away
+                var navigated = false;
+                
+                // Set timeout for fallback
+                var fallbackTimer = setTimeout(function() {
+                    if (!navigated) {
+                        // Facebook likely not installed, go to SPO page
+                        window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+                    }
+                }, 1500); // Slightly longer timeout for better reliability
+                
+                // Before we try to open Facebook, set up the visibility listener
+                document.addEventListener("visibilitychange", function() {
+                    if (document.hidden) {
+                        // App opened successfully, clear fallback
+                        navigated = true;
+                        clearTimeout(fallbackTimer);
+                    }
+                });
+                
+                // Also listen for blur event as backup detection method
+                window.addEventListener("blur", function() {
+                    // App focus likely changed, assume success
+                    navigated = true;
+                    clearTimeout(fallbackTimer);
+                });
+                
+                // Now try to open Facebook
+                window.location.href = "fb://profile/4";
+            } else {
+                // For non-iOS devices, just go to the SPO page
+                window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+            }
+        }
+        
+        // Run when page loads
+        window.onload = function() {
+            openApp();
+        };
+    </script>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 100px;">
+        <p>Redirecting you...</p>
+    </div>
+</body>
+</html>
