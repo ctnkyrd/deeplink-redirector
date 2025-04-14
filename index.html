@@ -4,45 +4,52 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Redirect</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+    <script type="text/javascript">
+        function checkAndRedirect() {
+            // Check if running on iOS
+            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isIOS) {
+                // For iOS, we'll use a hidden iframe to test if Facebook is installed
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                
+                // Set up the fallback timer first
+                var fallbackTimer = setTimeout(function() {
+                    // If we're still here after the timeout, go to SPO page
+                    window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+                }, 2000);
+                
+                // Handle messages from the iframe
+                window.addEventListener('blur', function() {
+                    // App is likely opening, clear fallback
+                    clearTimeout(fallbackTimer);
+                });
+                
+                // Now try to open Facebook via the iframe
+                iframe.onload = function() {
+                    // This generally won't trigger for app schemes
+                };
+                
+                // Use the iframe to try opening the app
+                document.body.appendChild(iframe);
+                iframe.src = "fb://profile/4";
+            } else {
+                // For non-iOS devices, just go to the SPO page
+                window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
+            }
         }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4267B2;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            margin: 10px;
-        }
-    </style>
+        
+        // When page loads, start the process
+        window.onload = function() {
+            // Add a slight delay before trying to open the app to ensure the page is fully loaded
+            setTimeout(checkAndRedirect, 100);
+        };
+    </script>
 </head>
 <body>
-    <h2>Choose your destination</h2>
-    <p>Tap the button below to continue</p>
-    
-    <a href="fb://profile/4" class="button" id="openButton">Continue</a>
-    
-    <script type="text/javascript">
-        // Auto-redirect to SPO page after a delay
-        setTimeout(function() {
-            window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-        }, 3000);
-        
-        // If user taps the button, prevent the auto-redirect
-        document.getElementById('openButton').addEventListener('click', function() {
-            // Clear any possible redirects
-            setTimeout(function() {
-                // If we're still on the page after attempting to open Facebook
-                if (document.visibilityState !== 'hidden') {
-                    window.location = "https://spo.dev.evmng.valuespaces.io/SPO_TEST_DEU_9001";
-                }
-            }, 1000);
-        });
-    </script>
+    <div style="text-align: center; margin-top: 100px;">
+        <p>Redirecting you...</p>
+    </div>
 </body>
 </html>
